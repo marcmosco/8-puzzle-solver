@@ -1,0 +1,50 @@
+<div class="controls">
+  <label>Stato iniziale (9 cifre, 0 = vuoto):</label>
+  <input [(ngModel)]="start" />
+
+  <label>Scegli algoritmo:</label>
+  <select [(ngModel)]="algorithm">
+    <option value="bfs">BFS</option>
+    <option value="dfs">DFS</option>
+    <option value="ids">IDS</option>
+    <option value="astar">A*</option>
+  </select>
+
+  <label *ngIf="algorithm === 'astar'">Euristica:</label>
+  <select *ngIf="algorithm === 'astar'" [(ngModel)]="heuristic">
+    <option value="manhattan">Manhattan</option>
+    <option value="euclidean">Euclidea</option>
+  </select>
+
+  <button (click)="solve()">Risolvi</button>
+  <span class="message">{{message}}</span>
+</div>
+
+<div class="controls">
+  <label>Velocità (ms):</label>
+  <input type="number" [(ngModel)]="speedMs" min="50" />
+
+  <button (click)="play()">Play</button>
+  <button (click)="pause()">Pause</button>
+  <button (click)="stepBack()">Step &lt;</button>
+  <button (click)="stepForward()">Step &gt;</button>
+  <button (click)="resetToStart()">Reset</button>
+</div>
+
+<div class="metrics" *ngIf="lastStats">
+  <strong>Tempo:</strong> {{ lastStats.timeMs | number:'1.0-0' }} ms
+  &nbsp;|&nbsp;
+  <strong>Nodi espansi:</strong> {{ lastStats.nodesExpanded }}
+  &nbsp;|&nbsp;
+  <strong>Profondità max:</strong> {{ lastStats.maxDepth }}
+</div>
+
+<div class="board-wrapper">
+  <div #board class="board">
+    <div class="cell" *ngFor="let _ of [0,1,2,3,4,5,6,7,8]"></div>
+
+    <div class="tile" *ngFor="let t of tiles" [style.transform]="getTransform(t.pos)">
+      {{t.value}}
+    </div>
+  </div>
+</div>
