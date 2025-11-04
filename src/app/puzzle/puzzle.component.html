@@ -1,54 +1,74 @@
-<div class="controls">
-  <label>Stato iniziale (9 cifre, 0 = vuoto):</label>
-  <input [(ngModel)]="start" />
+<div class="panel">
 
-  <label>Scegli algoritmo:</label>
-  <select [(ngModel)]="algorithm">
-    <option value="bfs">BFS</option>
-    <option value="dfs">DFS</option>
-    <option value="ids">IDS</option>
-    <option value="astar">A*</option>
-  </select>
-@if(algorithm === 'astar'){
-  <label>Euristica:</label>
-  <select [(ngModel)]="heuristic">
-    <option value="manhattan">Manhattan</option>
-    <option value="euclidean">Euclidea</option>
-  </select>
-}
+  <div class="controls-row">
+    <div class="left-controls">
+      <label class="label">Stato iniziale</label>
+      <input class="input-state" [(ngModel)]="start" maxlength="9" aria-label="Stato iniziale (9 cifre, 0=vuoto)" />
 
+      <label class="label">Algoritmo</label>
+      <select [(ngModel)]="algorithm" class="select">
+        <option value="bfs">BFS</option>
+        <option value="dfs">DFS</option>
+        <option value="ids">IDS</option>
+        <option value="astar">A*</option>
+      </select>
 
+      <label class="label" *ngIf="algorithm === 'astar'">Euristica</label>
+      <select *ngIf="algorithm === 'astar'" [(ngModel)]="heuristic" class="select">
+        <option value="manhattan">Manhattan</option>
+        <option value="euclidean">Euclidea</option>
+      </select>
 
-  <button (click)="solve()">Risolvi</button>
-  <span class="message">{{message}}</span>
-</div>
+      <button class="btn primary" (click)="solve()" aria-label="Risolvi">Risolvi</button>
+    </div>
 
-<div class="controls">
-  <label>Velocità (ms):</label>
-  <input type="number" [(ngModel)]="speedMs" min="50" />
+    <div class="right-controls">
+      <div class="playback">
+        <button class="icon-btn" (click)="play()" [disabled]="!solution || playing" title="Play" aria-label="Play">
+          <!-- simple play icon -->
+          ▶
+        </button>
+        <button class="icon-btn" (click)="pause()" [disabled]="!playing" title="Pause" aria-label="Pause">❚❚</button>
+        <button class="icon-btn stop" (click)="stop()" [disabled]="!playing" title="Stop" aria-label="Stop">■</button>
 
-  <button (click)="play()">Play</button>
-  <button (click)="pause()">Pause</button>
-  <button (click)="stepBack()">Step &lt;</button>
-  <button (click)="stepForward()">Step &gt;</button>
-  <button (click)="resetToStart()">Reset</button>
-</div>
-@if(lastStats){
-<div class="metrics" >
-  <strong>Tempo:</strong> {{ lastStats?.timeMs | number:'1.0-0' }} ms
-  &nbsp;|&nbsp;
-  <strong>Nodi espansi:</strong> {{ lastStats?.nodesExpanded }}
-  &nbsp;|&nbsp;
-  <strong>Profondità max:</strong> {{ lastStats?.maxDepth }}
-</div>
-}
-<div class="board-wrapper">
-  <div #board class="board">
+        <button class="icon-btn" (click)="stepBack()" title="Step back" aria-label="Step back">◀</button>
+        <button class="icon-btn" (click)="stepForward()" title="Step forward" aria-label="Step forward">▶▸</button>
+        <button class="icon-btn" (click)="resetToStart()" title="Reset" aria-label="Reset">⟲</button>
+      </div>
 
-    <div class="cell" *ngFor="let _ of [0,1,2,3,4,5,6,7,8]"></div>
+      <div class="speed-control">
+        <label class="label">Velocità</label>
+        <input type="range" min="50" max="1200" step="10" [(ngModel)]="speedMs" />
+        <div class="speed-value">{{speedMs}} ms</div>
+      </div>
+    </div>
+  </div>
 
-    <div class="tile" *ngFor="let t of tiles" [style.transform]="getTransform(t.pos)">
-      {{t.value}}
+  <div class="message-row">
+    <div class="message">{{ message }}</div>
+
+    <div class="metrics" *ngIf="lastStats">
+      <div><strong>Tempo:</strong> {{ lastStats?.timeMs | number:'1.0-0' }} ms</div>
+      <div><strong>Nodi:</strong> {{ lastStats?.nodesExpanded }}</div>
+      <div><strong>Profondità:</strong> {{ lastStats?.maxDepth }}</div>
+    </div>
+  </div>
+
+  <div class="board-wrapper">
+    <div #board class="board" [class.solved]="boardSolved" role="grid" aria-label="8 puzzle board">
+      <div class="cell" *ngFor="let _ of [0,1,2,3,4,5,6,7,8]"></div>
+
+      <div class="tile"
+           *ngFor="let t of tiles"
+           [ngClass]="{ dragging: t.dragging }"
+           [ngStyle]="getTileStyle(t)"
+           (pointerdown)="onPointerDown($event, t)"
+           (pointermove)="onPointerMove($event)"
+           (pointerup)="onPointerUp($event, t)"
+           role="button"
+           [attr.aria-label]="'Tessera ' + t.value">
+        {{ t.value }}
+      </div>
     </div>
   </div>
 </div>

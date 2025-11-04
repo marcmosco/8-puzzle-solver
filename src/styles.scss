@@ -1,1 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+:root{
+  --bg: #f5f8fb;
+  --card: #ffffff;
+  --muted: #6b7280;
+  --accent: #3466f2;
+
+  /* palette tile arancione */
+  --tile-start: #fff4e6;
+  --tile-mid:   #ffd08a;
+  --tile-end:   #ff9f3b;
+  --tile-accent:#ff7a00;
+
+  --radius: 12px;
+  --gap: 12px;
+}
