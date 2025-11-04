@@ -16,12 +16,10 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   position: relative;
-  background: #f7f7f7;
   border: 2px solid #ccc;
   box-sizing: border-box;
-  background-image:
-    linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px);
+  background: #f7f7f7 linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
+  linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
   background-size: calc(100%/3) calc(100%/3);
 }
 

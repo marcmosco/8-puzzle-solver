@@ -1,18 +1,27 @@
 import { Component, OnDestroy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
-import { PuzzleService, SolutionResult } from './puzzle/puzzle.service';
-import { isSolvable } from './puzzle/puzzle.model';
+import {PuzzleService, SolutionResult} from './puzzle.service';
+import {isSolvable} from './puzzle.model';
+import {FormsModule} from '@angular/forms';
+import {DecimalPipe, NgForOf} from '@angular/common';
+
 
 type Tile = { value: number; pos: number; };
 
 @Component({
+
   selector: 'app-puzzle',
-  templateUrl: './puzzle/puzzle.component.html',
-  styleUrls: ['./puzzle/puzzle.component.css']
+  templateUrl: './puzzle.component.html',
+  imports: [
+    FormsModule,
+    DecimalPipe,
+    NgForOf
+  ],
+  styleUrls: ['./puzzle.component.css']
 })
 export class PuzzleComponent implements AfterViewInit, OnDestroy {
   @ViewChild('board', { static: true }) boardEl!: ElementRef<HTMLDivElement>;
 
-  start = '123405678';
+  start = '132046587';
   algorithm: 'bfs'|'dfs'|'ids'|'astar' = 'astar';
   heuristic: 'manhattan'|'euclidean' = 'manhattan';
   solution: string[] | null = null;
@@ -29,6 +38,7 @@ export class PuzzleComponent implements AfterViewInit, OnDestroy {
 
   constructor(private svc: PuzzleService) {
     this.tiles = this.tilesFromState(this.start);
+    console.log('tiles',this.tiles);
   }
 
   ngAfterViewInit() {
@@ -58,7 +68,9 @@ export class PuzzleComponent implements AfterViewInit, OnDestroy {
     else if (this.algorithm === 'ids') result = this.svc.solveIDS(this.start, 40);
     else result = this.svc.solveAStar(this.start, this.heuristic);
 
+    console.log('result',result);
     this.solution = result.path;
+
     this.lastStats = result.stats;
 
     if (!this.solution) this.message = 'Nessuna soluzione trovata';
@@ -114,8 +126,8 @@ export class PuzzleComponent implements AfterViewInit, OnDestroy {
   getTransform(pos: number): string {
     const row = Math.floor(pos / 3);
     const col = pos % 3;
-    const tx = (col * 100 / 3);
-    const ty = (row * 100 / 3);
-    return `translate(${tx}%, ${ty}%)`;
+    // muove la tile di col * 100% (1 cella per 100% della tile)
+    return `translate(${col * 100}%, ${row * 100}%)`;
   }
+
 }
