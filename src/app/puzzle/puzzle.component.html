@@ -1,3 +1,4 @@
+<!-- Controlli principali -->
 <div class="panel">
 
   <div class="controls-row">
@@ -6,7 +7,7 @@
       <input class="input-state" [(ngModel)]="start" maxlength="9" aria-label="Stato iniziale (9 cifre, 0=vuoto)" />
 
       <label class="label">Algoritmo</label>
-      <select [(ngModel)]="algorithm" class="select">
+      <select class="select" [(ngModel)]="algorithm" aria-label="Seleziona algoritmo">
         <option value="bfs">BFS</option>
         <option value="dfs">DFS</option>
         <option value="ids">IDS</option>
@@ -14,7 +15,7 @@
       </select>
 
       <label class="label" *ngIf="algorithm === 'astar'">Euristica</label>
-      <select *ngIf="algorithm === 'astar'" [(ngModel)]="heuristic" class="select">
+      <select *ngIf="algorithm === 'astar'" class="select" [(ngModel)]="heuristic" aria-label="Seleziona euristica">
         <option value="manhattan">Manhattan</option>
         <option value="euclidean">Euclidea</option>
       </select>
@@ -24,10 +25,7 @@
 
     <div class="right-controls">
       <div class="playback">
-        <button class="icon-btn" (click)="play()" [disabled]="!solution || playing" title="Play" aria-label="Play">
-          <!-- simple play icon -->
-          ▶
-        </button>
+        <button class="icon-btn" (click)="play()" [disabled]="!solution || playing" title="Play" aria-label="Play">▶</button>
         <button class="icon-btn" (click)="pause()" [disabled]="!playing" title="Pause" aria-label="Pause">❚❚</button>
         <button class="icon-btn stop" (click)="stop()" [disabled]="!playing" title="Stop" aria-label="Stop">■</button>
 
@@ -39,36 +37,76 @@
       <div class="speed-control">
         <label class="label">Velocità</label>
         <input type="range" min="50" max="1200" step="10" [(ngModel)]="speedMs" />
-        <div class="speed-value">{{speedMs}} ms</div>
+        <div class="speed-value">{{ speedMs }} ms</div>
       </div>
     </div>
   </div>
 
   <div class="message-row">
     <div class="message">{{ message }}</div>
-
-    <div class="metrics" *ngIf="lastStats">
-      <div><strong>Tempo:</strong> {{ lastStats?.timeMs | number:'1.0-0' }} ms</div>
-      <div><strong>Nodi:</strong> {{ lastStats?.nodesExpanded }}</div>
-      <div><strong>Profondità:</strong> {{ lastStats?.maxDepth }}</div>
-    </div>
   </div>
 
-  <div class="board-wrapper">
-    <div #board class="board" [class.solved]="boardSolved" role="grid" aria-label="8 puzzle board">
-      <div class="cell" *ngFor="let _ of [0,1,2,3,4,5,6,7,8]"></div>
+  <!-- main: board a sinistra, statistiche a destra -->
+  <div class="main-content">
+    <div class="board-column">
+      <div class="board-wrapper">
+        <div #board class="board" [class.solved]="boardSolved" role="grid" aria-label="8 puzzle board">
+          <div class="cell" *ngFor="let _ of [0,1,2,3,4,5,6,7,8]"></div>
 
-      <div class="tile"
-           *ngFor="let t of tiles"
-           [ngClass]="{ dragging: t.dragging }"
-           [ngStyle]="getTileStyle(t)"
-           (pointerdown)="onPointerDown($event, t)"
-           (pointermove)="onPointerMove($event)"
-           (pointerup)="onPointerUp($event, t)"
-           role="button"
-           [attr.aria-label]="'Tessera ' + t.value">
-        {{ t.value }}
+          <div class="tile"
+               *ngFor="let t of tiles"
+               [ngClass]="{ dragging: t.dragging }"
+               [ngStyle]="getTileStyle(t)"
+               (pointerdown)="onPointerDown($event, t)"
+               (pointermove)="onPointerMove($event)"
+               (pointerup)="onPointerUp($event, t)"
+               role="button"
+               [attr.aria-label]="'Tessera ' + t.value">
+            {{ t.value }}
+          </div>
+        </div>
       </div>
     </div>
+
+    <aside class="stats-column" aria-label="Statistiche">
+      <div class="stats-panel sticky">
+        <div class="metrics-card" *ngIf="lastStats">
+          <div class="metrics-grid">
+            <div class="metric">
+              <div class="label">Numero mosse (soluzione)</div>
+              <div class="value">{{ solution ? (solution.length - 1) : '-' }}</div>
+            </div>
+
+            <div class="metric">
+              <div class="label">Profondità del goal</div>
+              <div class="value">{{ solution ? (solution.length - 1) : '-' }}</div>
+            </div>
+
+            <div class="metric">
+              <div class="label">Profondità max esplorata</div>
+              <div class="value">{{ lastStats.maxDepth }}</div>
+            </div>
+
+            <div class="metric">
+              <div class="label">Nodi espansi</div>
+              <div class="value">{{ lastStats.nodesExpanded }}</div>
+            </div>
+
+            <div class="metric">
+              <div class="label">Tempo</div>
+              <div class="value">{{ lastStats.timeMs | number:'1.0-0' }} ms</div>
+            </div>
+          </div>
+
+          <div class="depth-note" *ngIf="depthNote">
+            <strong>Nota:</strong> {{ depthNote }}
+          </div>
+        </div>
+
+        <div class="metrics-card empty" *ngIf="!lastStats">
+          <div class="placeholder">Esegui una ricerca per vedere le statistiche qui.</div>
+        </div>
+      </div>
+    </aside>
   </div>
 </div>

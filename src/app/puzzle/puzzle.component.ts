@@ -21,6 +21,11 @@ type Tile = { value: number; pos: number; dragging?: boolean; dx?: number; dy?: 
 })
 export class PuzzleComponent implements AfterViewInit, OnDestroy {
   @ViewChild('board', { static: true }) boardEl!: ElementRef<HTMLDivElement>;
+  moves: number | null = null;
+  depthGoal: number | null = null;
+  depthStatus: 'greater' | 'less' | 'equal' | null = null;
+  depthNote: string | null = null;
+
 
   // input / algorithm
   start = '123405678';
@@ -89,17 +94,34 @@ export class PuzzleComponent implements AfterViewInit, OnDestroy {
     else if (this.algorithm === 'ids') result = this.svc.solveIDS(this.start, 40);
     else result = this.svc.solveAStar(this.start, this.heuristic);
 
-    this.solution = result.path;
-    this.lastStats = result.stats;
 
-    if (!this.solution) {
-      this.message = 'Nessuna soluzione trovata';
-      this.tiles = this.tilesFromState(this.start);
+    this.solution = result.path;
+    this.lastStats = result.stats ?? null;
+
+// calcolo esplicito della profondità del goal (numero mosse)
+    this.moves = this.solution ? (this.solution.length - 1) : null;
+    this.depthGoal = this.moves;
+
+// confronto con maxDepth per produrre stato e messaggio breve
+    if (this.lastStats) {
+      const maxD = this.lastStats.maxDepth ?? 0;
+      const goalD = this.depthGoal ?? 0;
+      if (maxD > goalD) {
+        this.depthStatus = 'greater'; // maxDepth > goalDepth
+        this.depthNote = `L'algoritmo ha esplorato profondità maggiori (${maxD}) rispetto alla soluzione (${goalD}).`;
+      } else if (maxD < goalD) {
+        this.depthStatus = 'less';
+        this.depthNote = `La profondità massima esplorata (${maxD}) è minore della profondità del goal (${goalD}).`;
+      } else {
+        this.depthStatus = 'equal';
+        this.depthNote = `La profondità massima esplorata coincide con la profondità del goal (${goalD}).`;
+      }
     } else {
-      this.message = `Trovata soluzione in ${this.solution.length - 1} mosse`;
-      this.tiles = this.tilesFromState(this.solution[0]);
-      this.currentStep = 0;
+      this.depthStatus = null;
+      this.depthNote = null;
     }
+
+
   }
 
   // --- playback controls ---
