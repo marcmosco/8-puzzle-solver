@@ -28,7 +28,7 @@ export class PuzzleComponent implements AfterViewInit, OnDestroy {
 
 
   // input / algorithm
-  start = '123405678';
+  start = '214358607';
   algorithm: 'bfs' | 'dfs' | 'ids' | 'astar' = 'astar';
   heuristic: 'manhattan' | 'euclidean' = 'manhattan';
 
@@ -98,7 +98,7 @@ export class PuzzleComponent implements AfterViewInit, OnDestroy {
     this.solution = result.path;
     this.lastStats = result.stats ?? null;
 
-// calcolo esplicito della profondità del goal (numero mosse)
+    // calcolo esplicito della profondità del goal (numero mosse)
     this.moves = this.solution ? (this.solution.length - 1) : null;
     this.depthGoal = this.moves;
 
